@@ -28,10 +28,10 @@ class Clientes:
             if cliente.rut == rut:
                 Clientes.lista[i].nombre = nombre
                 Clientes.lista[i].apellido = apellido
-                return Clientes.lista[i]
+                return cliente
 
     @staticmethod
     def borrar(rut):
         for i, cliente in enumerate(Clientes.lista):
             if cliente.rut == rut:
-                return Clientes.lista.pop[i]
+                return Clientes.lista.pop(i)

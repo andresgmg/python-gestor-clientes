@@ -1,14 +1,14 @@
 import unittest
-import db
+from app import db,helpers
 import copy
 
 class TestDatabase(unittest.TestCase):
 
     def setUp(self):
         db.Clientes.lista = [
-            db.Cliente('15K', 'Marta', 'Perez'),
-            db.Cliente('16K', 'manolo', 'lopez'),
-            db.Cliente('18K','Ana', 'Garcia')
+            db.Cliente('15213110-K', 'Marta', 'Perez'),
+            db.Cliente('16123654-3', 'manolo', 'lopez'),
+            db.Cliente('1321658-9','Ana', 'Garcia')
         ]
         return super().setUp()
 
@@ -39,3 +39,7 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(len(db.Clientes.lista), 2)
         self.assertEqual(cliente_borrado.rut, '16K')
         self.assertIsNone(cliente_rebuscado)
+
+    def test_rut_validator(self):
+        self.assertTrue(helpers.rut_validator('25606645-1', db.Clientes.lista))
+        self.assertFalse(helpers.rut_validator('1564654-2', db.Clientes.lista)) #TODO: este testeo esta raro, hay que revisarlo

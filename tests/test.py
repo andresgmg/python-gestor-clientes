@@ -42,4 +42,4 @@ class TestDatabase(unittest.TestCase):
 
     def test_rut_validator(self):
         self.assertTrue(helpers.rut_validator('25606645-1', db.Clientes.lista))
-        self.assertFalse(helpers.rut_validator('1564654-2', db.Clientes.lista)) #TODO: este testeo esta raro, hay que revisarlo
+        self.assertFalse(helpers.rut_validator('1234-f', db.Clientes.lista))

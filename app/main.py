@@ -31,7 +31,11 @@ def iniciar_app():
             helpers.pausar_app()
         elif opcion == '3':
             print("Añadir cliente... ")
-            rut = helpers.leer_texto(6,10,"ingrese un rut valido (con guion)").upper()
+            while True:
+                rut = helpers.leer_texto(6,10,"ingrese un rut valido (con guion)").upper()
+                valido = helpers.rut_validator(rut, db.Clientes.lista)
+                if valido:
+                    break
             nombre = helpers.leer_texto(1,30,"Nombre (de 2 a 30 char)").capitalize()
             apellido = helpers.leer_texto(1,30,"Apellido (de 2 a 30 char)").capitalize()
             db.Clientes.crear(rut, nombre, apellido)

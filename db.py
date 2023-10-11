@@ -1,3 +1,5 @@
+import csv
+
 class Cliente:
     def __init__(self, rut, nombre, apellido):
         self.rut = rut
@@ -9,6 +11,11 @@ class Cliente:
 
 class Clientes:
     lista = []
+    with open('clientes.csv', newline='\n') as fichero:
+        reader = csv.reader(fichero, delimiter=',')
+        for rut, nombre, apellido in reader:
+            cliente = Cliente(rut, nombre, apellido)
+            lista.append(cliente)
 
     @staticmethod
     def buscar(rut):
@@ -20,6 +27,7 @@ class Clientes:
     def crear(rut, nombre, apellido):
         cliente = Cliente(rut, nombre, apellido)
         Clientes.lista.append(cliente)
+        Clientes.guardar_csv()
         return cliente
 
     @staticmethod
@@ -28,10 +36,20 @@ class Clientes:
             if cliente.rut == rut:
                 Clientes.lista[i].nombre = nombre
                 Clientes.lista[i].apellido = apellido
+                Clientes.guardar_csv()
                 return cliente
 
     @staticmethod
     def borrar(rut):
         for i, cliente in enumerate(Clientes.lista):
             if cliente.rut == rut:
-                return Clientes.lista.pop(i)
+                cliente = Clientes.lista.pop(i)
+                Clientes.guardar_csv()
+                return cliente
+
+    @staticmethod
+    def guardar_csv():
+        with open("clientes.csv", "w", newline="\n") as fichero:
+            writer = csv.writer(fichero, delimiter=",")
+            for cliente in Clientes.lista:
+                writer.writerow((cliente.rut, cliente.nombre, cliente.apellido))

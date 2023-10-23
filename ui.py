@@ -73,6 +73,7 @@ class CreateClientWindow(Toplevel, CenterWidgetMixin):
         self.master.treeview.insert(
                 parent='', index='end', iid=self.rut.get(),
                 values=(self.rut.get(), self.nombre.get(), self.apellido.get()))
+        db.Clientes.crear(self.rut.get(), self.nombre.get(), self.apellido.get())
         showinfo(title="Exito!", message=f"Cliente {self.nombre.get()} {self.apellido.get()} creado con exito!")
         self.close()
 
@@ -146,6 +147,7 @@ class ModifyClientWindow(Toplevel, CenterWidgetMixin):
     def modify_client(self):
         cliente = self.master.treeview.focus()
         self.master.treeview.item(cliente, values=(self.rut.get(), self.nombre.get(), self.apellido.get()))
+        db.Clientes.modificar(self.rut.get(), self.nombre.get(), self.apellido.get())
         showinfo(title="EXITO!", message=f"cliente {self.nombre.get()} {self.apellido.get()} modificado con exito!")
         self.close()
 
@@ -225,6 +227,7 @@ class MainWindow(Tk, CenterWidgetMixin):
             confirmar = askokcancel(title="confiarmar borrado", message=f"Estas seguro de borrar a {campos[1]} {campos[2]}?")
             if confirmar:
                 self.treeview.delete(cliente)
+                db.Clientes.borrar(campos[0])
                 showinfo(title="EXITO!", message=f"cliente {campos[1]} {campos[2]} eliminado con exito!")
         else: showinfo(title="ERROR!", message="No hay un cliente seleccionado!")
 

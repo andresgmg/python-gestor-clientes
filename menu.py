@@ -66,6 +66,3 @@ def iniciar_app():
             print("Opcion incorrecta, por favor introduzca una opcion valida...")
             helpers.pausar_app()
             iniciar_app()
-
-
-iniciar_app()

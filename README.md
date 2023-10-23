@@ -1,7 +1,15 @@
 # gestor clientes
  gestor de clientes el cual guarda toda la dat en un archivo llamado clientes.csv
 
-### NOTA: ESTE GESTOR NO VALIDA AL 100% EL RUT CHILENO, PAA ELLO HABRIA QUE OCUPAR EL SIGUIENTE CODIGO:
+# instalar e inicializar app
+ Pasos a seguir:
+ - clonar el repositorio git
+ - crear entorno virtual (``` python -m venv env ```)
+ - Activar entorno virtual para windows (``` env\scripts\activate ```) para linux y mac (``` env\bin\activate ```)
+ - instalar librerias y dependencias (``` pip install -r requirements.txt ```)
+ - correr el programa, para modalidad consola (``` python run.py -t ```) para modalidad User interface (``` python run.py ```)
+
+### NOTA: ESTE GESTOR NO VALIDA AL 100% EL RUT CHILENO, PARA ELLO HABRIA QUE OCUPAR EL SIGUIENTE CODIGO:
 ```python
 def validar_rut(rut):
     # Elimina puntos y guiones del RUT

@@ -1,7 +1,9 @@
 # Importaciones y librerias
 from tkinter import *
 from tkinter import ttk
+from tkinter.messagebox import *
 import db
+import helpers
 
 
 
@@ -17,6 +19,147 @@ class CenterWidgetMixin:
         y = int(hs/2 - h/2)
         self.geometry(f"{w}x{h}+{x}+{y}")
         self.resizable(width=False, height=True)
+
+
+
+# Ventana de creacion de cliente
+class CreateClientWindow(Toplevel, CenterWidgetMixin):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Crear cliente")
+        self.build()
+        self.center()
+        self.transient(parent)
+        self.grab_set()
+
+    def build(self):
+        # Top frame
+        frame = Frame(self)
+        frame.pack(padx=20, pady=10)
+
+        # Labels
+        Label(frame, text="RUT: ").grid(row=0, column=0)
+        Label(frame, text="NOMBRE: ").grid(row=1, column=0)
+        Label(frame, text="APELLIDO: ").grid(row=2, column=0)
+
+        # Entries
+        rut = Entry(frame)
+        rut.grid(row=0, column=1)
+        rut.bind("<KeyRelease>", lambda event: self.validate(event, 0))
+        nombre = Entry(frame)
+        nombre.grid(row=1, column=1)
+        nombre.bind("<KeyRelease>", lambda event: self.validate(event, 1))
+        apellido = Entry(frame)
+        apellido.grid(row=2, column=1)
+        apellido.bind("<KeyRelease>", lambda event: self.validate(event, 2))
+
+        # Bottom frame
+        frame = Frame(self)
+        frame.pack(pady=10)
+
+        # Buttons
+        crear = Button(frame, text="Crear", command=self.create_client)
+        crear.configure(state=DISABLED)
+        crear.grid(row=0, column=0)
+        Button(frame, text="Cancelar", command=self.close).grid(row=0, column=1)
+
+        self.validaciones = [False, False, False]
+        self.crear = crear
+        self.rut = rut
+        self.nombre = nombre
+        self.apellido = apellido
+
+    def create_client(self):
+        self.master.treeview.insert(
+                parent='', index='end', iid=self.rut.get(),
+                values=(self.rut.get(), self.nombre.get(), self.apellido.get()))
+        showinfo(title="Exito!", message=f"Cliente {self.nombre.get()} {self.apellido.get()} creado con exito!")
+        self.close()
+
+    def close(self):
+        self.destroy()
+        self.update()
+
+    def validate(self, event, index):
+        valor = event.widget.get()
+        valido = helpers.rut_validator(valor, db.Clientes.lista) if index == 0 else \
+            (valor.isalpha() and len(valor) > 1 and len(valor) < 30)
+        event.widget.configure({"bg":"green" if valido else "red"})
+        # cambiar el estado del boton en base a las validaciones
+        self.validaciones[index] = valido
+        self.crear.config(state=NORMAL if self.validaciones == [True, True, True] else DISABLED)
+
+
+
+# Ventana de modificacion de cliente
+class ModifyClientWindow(Toplevel, CenterWidgetMixin):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Modificar/Editar cliente")
+        self.build()
+        self.center()
+        self.transient(parent)
+        self.grab_set()
+
+    def build(self):
+        # Top frame
+        frame = Frame(self)
+        frame.pack(padx=20, pady=10)
+
+        # Labels
+        Label(frame, text="RUT: ").grid(row=0, column=0)
+        Label(frame, text="NOMBRE: ").grid(row=1, column=0)
+        Label(frame, text="APELLIDO: ").grid(row=2, column=0)
+
+        # Entries
+        rut = Entry(frame)
+        rut.grid(row=0, column=1)
+        nombre = Entry(frame)
+        nombre.grid(row=1, column=1)
+        nombre.bind("<KeyRelease>", lambda event: self.validate(event, 0))
+        apellido = Entry(frame)
+        apellido.grid(row=2, column=1)
+        apellido.bind("<KeyRelease>", lambda event: self.validate(event, 1))
+
+        cliente = self.master.treeview.focus()
+        campos = self.master.treeview.item(cliente, 'values')
+        rut.insert(0, campos[0])
+        rut.config(state=DISABLED)
+        nombre.insert(0, campos[1])
+        apellido.insert(0, campos[2])
+
+        # Bottom frame
+        frame = Frame(self)
+        frame.pack(pady=10)
+
+        # Buttons
+        editar = Button(frame, text="Editar", command=self.modify_client)
+        editar.grid(row=0, column=0)
+        Button(frame, text="Cancelar", command=self.close).grid(row=0, column=1)
+
+        self.validaciones = [True, True]
+        self.editar = editar
+        self.rut = rut
+        self.nombre = nombre
+        self.apellido = apellido
+
+    def modify_client(self):
+        cliente = self.master.treeview.focus()
+        self.master.treeview.item(cliente, values=(self.rut.get(), self.nombre.get(), self.apellido.get()))
+        showinfo(title="EXITO!", message=f"cliente {self.nombre.get()} {self.apellido.get()} modificado con exito!")
+        self.close()
+
+    def close(self):
+        self.destroy()
+        self.update()
+
+    def validate(self, event, index):
+        valor = event.widget.get()
+        valido = valor.isalpha() and len(valor) > 1 and len(valor) < 30
+        event.widget.configure({"bg":"green" if valido else "red"})
+        # cambiar el estado del boton en base a las validaciones
+        self.validaciones[index] = valido
+        self.editar.config(state=NORMAL if self.validaciones == [True, True] else DISABLED)
 
 
 
@@ -64,6 +207,32 @@ class MainWindow(Tk, CenterWidgetMixin):
         # Pack
         treeview.pack()
 
+        #Botones
+        frame = Frame(self)
+        frame.pack(pady=10)
+
+        Button(frame, text="Crear", command=self.create).grid(row=0, column=0, padx=5)
+        Button(frame, text="Modificar", command=self.modify).grid(row=0, column=1, padx=5)
+        Button(frame, text="Eliminar", command=self.delete).grid(row=0, column=2, padx=5)
+
+        # Para acceder a el como un widget en otros metodos
+        self.treeview = treeview
+
+    def delete(self):
+        cliente = self.treeview.focus()
+        if cliente:
+            campos = self.treeview.item(cliente, "values")
+            confirmar = askokcancel(title="confiarmar borrado", message=f"Estas seguro de borrar a {campos[1]} {campos[2]}?")
+            if confirmar:
+                self.treeview.delete(cliente)
+                showinfo(title="EXITO!", message=f"cliente {campos[1]} {campos[2]} eliminado con exito!")
+        else: showinfo(title="ERROR!", message="No hay un cliente seleccionado!")
+
+    def create(self):
+        CreateClientWindow(self)
+
+    def modify(self):
+        ModifyClientWindow(self) if self.treeview.focus() else showinfo(title="ERROR!", message="No hay un cliente seleccionado!")
 
 
 if __name__ == "__main__":
